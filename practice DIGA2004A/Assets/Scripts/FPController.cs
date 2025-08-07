@@ -16,6 +16,12 @@ public float verticalLookLimit = 90f;
 public GameObject bulletPrefab;
 public Transform gunpoint;
 
+[Header("Crouch Settings")]
+public float crouchHeight = 1f;
+public float standHeight = 2f;
+public float crouchSpeed = 2.5f;
+private float originalMoveSpeed;
+
 private CharacterController controller;
 private Vector2 moveInput;
 private Vector2 lookInput;
@@ -25,6 +31,7 @@ private float verticalRotation = 0f;
 private void Awake()
 {
 controller = GetComponent<CharacterController>();
+originalMoveSpeed = moveSpeed;
 Cursor.lockState = CursorLockMode.Locked;
 Cursor.visible = false;
 }
@@ -34,14 +41,17 @@ private void Update()
 HandleMovement();
 HandleLook();
 }
+
 public void OnMovement(InputAction.CallbackContext context)
 {
 moveInput = context.ReadValue<Vector2>();
 }
+
 public void OnLook(InputAction.CallbackContext context)
 {
 lookInput = context.ReadValue<Vector2>();
 }
+
 public void HandleMovement()
 {
 Vector3 move = transform.right * moveInput.x + transform.forward *
@@ -52,6 +62,7 @@ velocity.y = -2f;
 velocity.y += gravity * Time.deltaTime;
 controller.Move(velocity * Time.deltaTime);
 }
+
 public void HandleLook()
 {
 float mouseX = lookInput.x * lookSensitivity;
@@ -78,6 +89,7 @@ public void OnShoot(InputAction.CallbackContext context)
         Shoot();
     }
 }
+
 private void Shoot()
 {
     if (bulletPrefab != null && gunpoint != null)
@@ -87,9 +99,25 @@ private void Shoot()
         if (rb != null)
         {
             rb.AddForce(gunpoint.forward * 1000f); // Adjust force value as needed
+            Destroy(bullet, 3); // Destroy bullet from s ene after 3 seconds
         }
     }
 
+}
+
+public void OnCrouch(InputAction.CallbackContext context)
+{
+    if (context.performed)
+    {
+       controller.height = crouchHeight;
+       moveSpeed = crouchSpeed;
+    }   
+    else if(context.canceled)
+        {
+            controller.height = standHeight;
+            moveSpeed = originalMoveSpeed;
+        }
+    
 }
 
 }
