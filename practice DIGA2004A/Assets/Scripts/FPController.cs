@@ -11,17 +11,24 @@ public float jumpHeight = 1.5f;
 public Transform cameraTransform;
 public float lookSensitivity = 2f;
 public float verticalLookLimit = 90f;
+
+[Header("Shooting")]
+public GameObject bulletPrefab;
+public Transform gunpoint;
+
 private CharacterController controller;
 private Vector2 moveInput;
 private Vector2 lookInput;
 private Vector3 velocity;
 private float verticalRotation = 0f;
+
 private void Awake()
 {
 controller = GetComponent<CharacterController>();
 Cursor.lockState = CursorLockMode.Locked;
 Cursor.visible = false;
 }
+
 private void Update()
 {
 HandleMovement();
@@ -62,6 +69,27 @@ public void OnJump(InputAction.CallbackContext context)
     {
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
     }
+}
+
+public void OnShoot(InputAction.CallbackContext context)
+{
+    if (context.performed)
+    {
+        Shoot();
+    }
+}
+private void Shoot()
+{
+    if (bulletPrefab != null && gunpoint != null)
+    {
+        GameObject bullet = Instantiate(bulletPrefab, gunpoint.position, gunpoint.rotation);
+        Rigidbody rb = bullet.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.AddForce(gunpoint.forward * 1000f); // Adjust force value as needed
+        }
+    }
+
 }
 
 }
