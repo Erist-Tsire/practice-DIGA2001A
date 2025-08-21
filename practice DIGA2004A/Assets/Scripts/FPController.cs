@@ -31,6 +31,9 @@ private PickUpObject heldObject;
 public float throwForce = 10f;
 public float throwUpwardBoost =1f;
 
+[Header("Interaction Settings")]
+public float interactRange = 3f;
+
 private CharacterController controller;
 private Vector2 moveInput;
 private Vector2 lookInput;
@@ -170,7 +173,23 @@ public void OnThrow(InputAction.CallbackContext context)
     heldObject = null;
 }
 
+public void OnInteract(InputAction.CallbackContext context)
+{
+    if(!context.performed) return;
 
+    Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+    if(Physics.Raycast(ray, out RaycastHit hit, interactRange))
+    {
+        if(hit.collider.CompareTag("Switchable"))
+        {
+            var switcher  = hit.collider.GetComponent<MaterialSwitcher>();
+            if(switcher != null)
+            {
+                switcher.ToggleMaterial();
+            }
+        }
+    }
+}
 
 
 
